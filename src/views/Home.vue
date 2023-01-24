@@ -1,5 +1,5 @@
 <template>
-  <div id="App" class="m-0 b-0">
+  <div id="App" class="m-0 b-0 w-full">
     <div
       class="bg-transparent flex gap-6 pt-4"
       style="text-align: -webkit-center"
@@ -53,7 +53,7 @@
 
     <div
       id="container-music"
-      class="content w-full h-content flex lg:gap-10 md:gap-5 pt-4"
+      class="content h-content flex lg:gap-10 md:gap-5 pt-4"
     >
       <div class="nav gap-2 m-auto bg-transparent w-28 flex-row rounded-r">
         <Navbar v-on:home="reload" />
@@ -91,7 +91,8 @@
         class="
           overflow-auto
           bg-transparent
-          border-2 border-gray-600
+          border-2 rounded-2xl 
+          border-gray-600
           text-center
           my-auto
           w-full
@@ -317,37 +318,43 @@ export default {
       {
         id: 1,
         title: "6LACK - Seasons ft. Khalid",
-        src: require("../assets/images/batman.jpg"),
+        src: require("../assets/images/kseasons.webp"),
         songSrc: require("../assets/music/6LACK - Seasons ft. Khalid.mp3"),
       },
       {
         id: 2,
         title: "Diamond Heart - Alan Walker",
-        src: require("../assets/images/kiss.jpeg"),
+        src: require("../assets/images/awdiamond-heart.webp"),
         songSrc: require("../assets/music/Alan Walker - Diamond Heart (feat. Sophi-(You2Audio.Com).mp3"),
       },
       {
         id: 3,
         title: "Back To  Sleep - Chris Brown",
-        src: require("../assets/images/lambo.jpg"),
+        src: require("../assets/images/cbback-to-sleep.webp"),
         songSrc: require("../assets/music/Chris Brown - Back To Sleep (Official Mu-(You2Audio.Com).mp3"),
       },
       {
         id: 4,
         title: "Privacy - Chris Brown",
-        src: require("../assets/images/moon.jpg"),
+        src: require("../assets/images/cbprivacy.webp"),
         songSrc: require("../assets/music/Chris Brown - Privacy (Official Music VI-(You2Audio.Com).mp3"),
       },
       {
         id: 5,
-        title: "Without Me - Halsey",
-        src: require("../assets/images/supreme.jpeg"),
-        songSrc: require("../assets/music/Halsey - Without Me (Official Audio)-(You2Audio.Com).mp3"),
+        title: "Want Something - Chris Brown",
+        src: require("../assets/images/cbwant-something.webp"),
+        songSrc: require("../assets/music/Chris Brown - Want Something (Music Vide-(You2Audio.Com).mp3"),
       },
       {
         id: 6,
+        title: "Without Me - Halsey",
+        src: require("../assets/images/hwithout-me.webp"),
+        songSrc: require("../assets/music/Halsey - Without Me (Official Audio)-(You2Audio.Com).mp3"),
+      },
+      {
+        id: 7,
         title: "Y.O.U - Luh Kel",
-        src: require("../assets/images/venom.jpg"),
+        src: require("../assets/images/lkyou.webp"),
         songSrc: require("../assets/music/Luh_Kel_-_Y.O.U._(Official_Music_Video)(720p).mp3"),
       },
     ];
@@ -394,7 +401,7 @@ export default {
 }
 
 #container-music {
-  width: 100%;
+  width: 99%;
 }
 
 .isCurrent {
