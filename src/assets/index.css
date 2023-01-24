@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+    --font-default: menu;
+    --font-size-default: 12px;
+    --container-width-lg: 75%;
+    --container-width-md: 85%;
+    --container-width-sm: 90%;
+    --transition: all 400ms ease;
+}
+html, body, button, input, select, textarea {
+    color: hsl(0, 0%, 4%);
+    font: menu;
+    font-size: var(--font-size-default);
+    font-weight: 400;
+    line-height: 1.35;
+    scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  background: rgba(0, 0, 0, 0);
+  width: 8px;
+  height: 6px;
+}
+
