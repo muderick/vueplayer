@@ -1,35 +1,23 @@
 <template>
   <div id="App" class="m-0 b-0 w-full">
     <div
-      class="bg-transparent flex gap-6 pt-4"
+      class="bg-transparent flex pt-4"
       style="text-align: -webkit-center"
     >
       <div
-        class="justify-around bg-transparent text-center flex"
-        style="width: 103px"
+        class="bg-transparent text-center flex pl-7"
+        style="width: 10%"
       >
-        <svg
-          class="h-10 w-8 pt-2 text-white"
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="{2}"
-            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-          />
-        </svg>
-        <div class="text-center text-blue-300 pt-2">
-          <strong>Drick Music Player</strong>
+        <div class="bg-white rounded-full border-none">
+          <img height="47" width="47" :src="logo.src" :alt="logo.title">
+        </div>
+        <div class="text-center text-blue-300 pt-5 ml-2">
+          <strong>Player</strong>
         </div>
       </div>
       <div
         class="flex w-2/3 p-2 bg-gray-600 gap-4 rounded-full min-w-min m-auto"
-        style="width: 71%"
+        style="width: 50%"
       >
         <div class="w-7 pl-4">
           <SearchIcon class="h-10 w-5 text-white py-2" />
@@ -37,14 +25,7 @@
 
         <input
           type="text"
-          class="
-            text-center
-            bg-transparent
-            text-white text-xl
-            outline-none
-            pl-4
-            py-1
-          "
+          class="text-center bg-transparent text-white text-xl outline-none pl-4 py-1"
           style="width: -webkit-fill-available"
           placeholder="Search for music"
         />
@@ -60,18 +41,7 @@
       </div>
       <div
         v-show="isCurrent"
-        class="
-          isCurrent
-          flex
-          bg-gray-500
-          justify-center
-          w-3/4
-          m-auto
-          h-full
-          py-4
-          text-center
-          bg-cover
-        "
+        class="isCurrent flex bg-gray-500 justify-center w-3/4 m-auto h-full py-4 text-center bg-cover"
         :style="{
           backgroundImage: `url(${this.current.src})`,
           backgroundSize: `cover`,
@@ -88,54 +58,47 @@
       </div>
       <div
         v-show="isCurrent"
-        class="
-          overflow-auto
-          bg-transparent
-          border-2 rounded-2xl 
-          border-gray-600
-          text-center
-          my-auto
-          w-full
-          is_current
-        "
+        class="overflow-auto bg-transparent border-2 rounded-2xl border-gray-600 text-center my-auto w-full is_current"
       >
         <h2
-          class="
-            text-center
-            font-bold
-            py-8
-            text-xl
-            sm:text-2xl
-            lg:text-4xl
-            text-white
-            all-small-caps
-            px-4
-            border-1
-          "
+          class="text-center font-bold py-8 text-xl sm:text-2xl lg:text-4xl text-white all-small-caps px-4 border-1"
         >
           Playlist
         </h2>
-        <Playlist
+        <!-- <Playlist
           v-bind:songs="songs"
-          :current="current"
-          @play-song="play"
+          @play-song="play(song)"
           @addto-playlist="addToPlaylist"
-        />
+        /> -->
+
+        <div v-for="song in songs" :key="song.songSrc">
+          <div
+            class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
+          >
+            <div class="w-80">
+              <span>
+                <div
+                  @click="play(song)"
+                  class="text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2 m-0"
+                >
+                  {{ song.title }}
+              </div>
+              </span>
+            </div>
+            <div class="m-auto w-30">
+              <img
+                class="max-h-12 rounded pr-2"
+                v-bind:src="song.src"
+                alt="Image"
+              />
+            </div>
+          </div>
+        </div>
       </div>
       <div
         v-show="!isCurrent"
-        id="not-current"
-        class="
-          flex
-          bg-transparent
-          justify-center
-          w-3/4
-          sm:d-none
-          m-auto
-          h-full
-          py-4
-          text-center
-        "
+        id="not-current_detail"
+        class="flex bg-transparent justify-center w-3/4 sm:d-none m-auto h-full py-4 text-center"
       >
         <div class="p-5 text-white pt-8 m-auto text-center text-4xl">
           No song is currently playing!
@@ -143,51 +106,45 @@
       </div>
       <div
         v-show="!isCurrent"
-        class="
-          not_current
-          w-full
-          overflow-auto
-          h-full
-          text-center
-          border-2 border-gray-600
-          rounded-2xl
-          bg-transparent
-          my-auto
-        "
+        class="not_current w-full overflow-auto h-full text-center border-2 border-gray-600 rounded-2xl bg-transparent my-auto"
       >
         <h2
-          class="
-            text-center
-            font-bold
-            py-8
-            text-xl
-            sm:text-2xl
-            lg:text-4xl
-            text-white
-            all-small-caps
-            px-4
-          "
+          class="text-center font-bold py-8 text-xl sm:text-2xl lg:text-4xl text-white all-small-caps px-4"
         >
           Playlist
         </h2>
-        <Playlist
-          :current="current"
-          @play-song="play"
+        <!-- <Playlist
           :songs="songs"
+          @play-song="play(song)"
           @addto-playlist="addToPlaylist"
-        />
+        /> -->
+        <div v-for="song in songs" :key="song.songSrc">
+          <div
+            class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
+          >
+            <div class="w-80">
+              <span>
+                <div
+                  @click="play(song)"
+                  class="text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2"
+                >
+                  {{ song.title }}
+              </div>
+              </span>
+            </div>
+            <div class="m-auto w-30">
+              <img
+                class="max-h-12 rounded pr-2"
+                v-bind:src="song.src"
+                alt="Image"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div
-      class="
-        playbar
-        bg-transparent
-        w-full
-        justify-center
-        flex
-        rounded-r
-        text-white
-      "
+      class="playbar bg-transparent w-full justify-center flex rounded-r text-white"
     >
       <div class="pb-1 pt-1">
         <ChevronLeftIcon
@@ -199,7 +156,7 @@
         <PlayIcon
           v-if="!isPlaying"
           class="h-20 w-10 text-white"
-          @click="play"
+          @click="play()"
         />
         <PauseIcon
           v-else
@@ -213,6 +170,15 @@
           @click="nextSong"
         />
       </div>
+
+      <div class="pl-16 pb-1 pt-1">
+        <RefreshIcon
+          class="h-20 w-10 text-white duration-200"
+          @click="shuffleSongs(songs)"
+        />
+        <i class="fa-shuffle"></i>
+      </div>
+      
     </div>
   </div>
 </template>
@@ -220,24 +186,26 @@
 <script>
 // @ is an alias to /src
 import Navbar from "../components/Navbar.vue";
-import Playlist from "../components/Playlist.vue";
+//import Playlist from "../components/Playlist.vue";
 import { ChevronLeftIcon } from "@heroicons/vue/solid";
 import { PlayIcon } from "@heroicons/vue/solid";
 import { PauseIcon } from "@heroicons/vue/solid";
 import { ChevronRightIcon } from "@heroicons/vue/solid";
 import { SearchIcon } from "@heroicons/vue/solid";
+import { RefreshIcon } from "@heroicons/vue/solid";
 // import Playbar from "../components/Playbar.vue";
 
 export default {
   name: "Home",
   components: {
     Navbar,
-    Playlist,
+    //Playlist,
     PlayIcon,
     PauseIcon,
     ChevronRightIcon,
     ChevronLeftIcon,
     SearchIcon,
+    RefreshIcon,
     // Playbar,
   },
   data() {
@@ -248,6 +216,10 @@ export default {
       isCurrent: false,
       hover: false,
       songs: [],
+      logo: {
+        src: require('../../public/favicon_io/Drick__Logo.png'),
+        title: "Mumia Logo"
+      },
       limit: 5,
       // Set up the audio
       player: new Audio(),
@@ -259,13 +231,13 @@ export default {
       this.isCurrent = false;
     },
 
-    play(id) {
-      if (typeof this.index != "undefined") {
-        this.index = id - 1;
-        this.current = this.songs[this.index];
+    play(song) {
+      if (typeof song != "undefined") {
+        this.current = song;
         this.player.src = this.current.songSrc;
+        console.log(this.current);
       }
-      this.index = id - 1;
+      //this.index = id - 1;
       this.player.play();
       this.player.addEventListener(
         "ended",
@@ -300,6 +272,18 @@ export default {
       }
       this.current = this.songs[this.index];
       this.play(this.current);
+    },
+    shuffleSongs(songs) {
+      let songArray = [...songs];
+
+      for (let i = 0; i < songArray.length; i++) {
+        const randomSong = songArray.splice(
+          Math.floor((songArray.length - i) * Math.random()),
+          1
+        );
+        songArray.push(...randomSong);
+      }
+      return songArray;
     },
     controlVol(current) {
       let val = current.target.value;
@@ -362,11 +346,11 @@ export default {
     this.player.src = this.current.songSrc;
   },
 
-  computed:{
-  computedSongs(){
-    return this.limit ? this.songs.slice(0,this.limit) : this.songs
-  }
-}
+  computed: {
+    computedSongs() {
+      return this.limit ? this.songs.slice(0, this.limit) : this.songs;
+    },
+  },
 };
 </script>
 
@@ -374,30 +358,32 @@ export default {
 #App {
   background-image: url("../assets/images/bg-texture.png");
   background: rgba(0, 0, 0, 0.855);
-  height: 100%;
+  background-attachment: scroll;
+  height: 100vh;
+  overflow-y: scroll;
 }
 
-#not-current {
+#not-current_detail {
   height: 70vh;
+  width: 50%;
   transition: var(--transition);
   border-radius: 1rem;
 }
 
-#not-current:hover {
+#not-current_detail:hover {
   background: rgba(45, 35, 35, 0.855);
 }
 
-.not_current {
-  height: 70%;
+.not_current,
+.is_current {
+  height: 70vh;
+  width: 50%;
   transition: var(--transition);
+  overflow: scroll;
 }
 
 .not_current:hover {
   background: rgba(45, 35, 35, 0.855);
-}
-
-.is_current {
-  height: 70%;
 }
 
 #container-music {
@@ -406,11 +392,17 @@ export default {
 
 .isCurrent {
   height: 70vh;
+  width: 50%;
 }
 
 .playlist {
   width: 100%;
   color: white;
+}
+
+.playbar {
+  position: fixed;
+  bottom: 2%;
 }
 
 .volume-control {
@@ -458,7 +450,9 @@ export default {
 /* =================== MEDIA QUERIES (SMALL DEVICES) ==================== */
 @media screen and (max-width: 600px) {
   #App {
-    height: 100%;
+    height: 100vh;
+    overflow-y: hidden;
+    position: fixed;
   }
 
   #container-music {
@@ -468,13 +462,12 @@ export default {
     margin: auto;
   }
 
-  #not-current {
+  #not-current_detail {
     display: none;
   }
 
-  .not_current,
-  .is_current {
-    height: 100%;
+  .isCurrent {
+    display: none;
   }
   .nav {
     display: flex;
@@ -482,10 +475,17 @@ export default {
     margin-left: 0;
     column-gap: 2rem;
   }
-
-  .isCurrent {
-    height: 35vh;
+  .is_current,
+  .not_current {
+    height: 60vh;
     width: 100%;
+  }
+
+  .playbar {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    position: fixed;
+    bottom: 0%;
   }
 }
 </style>

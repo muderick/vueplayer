@@ -25,13 +25,13 @@
             gap-x-2
           "
           
-          v-on:click="$emit('play-song', song.id)"
+          v-on:click="$emit('play-song', song.songSrc)"
         >
           {{ song.title }}
         </button>
       </span>
     </div>
-    <div class="m-auto w-30 mr-4">
+    <div class="m-auto w-30">
       <img class="max-h-12 rounded pr-2" v-bind:src="song.src" alt="Image" />
     </div>
   </div>
@@ -47,7 +47,6 @@
 export default {
   name: "Playsong",
   props: {
-    current: Object,
     song: Object,
   },
   components: {

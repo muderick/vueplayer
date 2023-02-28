@@ -1,12 +1,11 @@
 <template>
     <div
         v-for="song in songs"
-        :key="song.id"
+        :key="song.songSrc"
     >
         <Playsong
             :song="song"
-            @addto-playlist="$emit('addto-playlist', song.id)"
-            @play-song="$emit('play-song', song.id)"
+            @play-song="$emit('play-song', song.songSrc)"
         />
     </div>
 </template>
@@ -20,7 +19,6 @@
         },
         props: {
             songs: Array,
-            current: Object,
         },
         emits: ['play-song', 'addto-playlist'],
     };

@@ -181,3 +181,27 @@
 
 background-color: rgb(32, 33, 35);
 background: #202123
+
+play(id) {
+    if (typeof this.index != "undefined") {
+      this.index = id - 1;
+      this.current = this.songs[this.index];
+      this.player.src = this.current.songSrc;
+    }
+    //this.index = id - 1;
+    this.player.play();
+    this.player.addEventListener(
+      "ended",
+      function () {
+        this.index++;
+        if (this.index > this.songs.length - 1) {
+          this.index = 0;
+        }
+        this.current = this.songs[this.index - 1];
+        this.play(this.current);
+        console.log(this.current)
+      }.bind(this)
+    );
+    this.isPlaying = true;
+    this.isCurrent = true;
+  },
