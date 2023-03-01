@@ -1,15 +1,9 @@
 <template>
   <div id="App" class="m-0 b-0 w-full">
-    <div
-      class="bg-transparent flex pt-4"
-      style="text-align: -webkit-center"
-    >
-      <div
-        class="bg-transparent text-center flex pl-7"
-        style="width: 10%"
-      >
+    <div class="bg-transparent flex pt-4" style="text-align: -webkit-center">
+      <div class="bg-transparent text-center flex pl-7" style="width: 10%">
         <div class="bg-white rounded-full border-none">
-          <img height="47" width="47" :src="logo.src" :alt="logo.title">
+          <img height="47" width="47" :src="logo.src" :alt="logo.title" />
         </div>
         <div class="text-center text-blue-300 pt-5 ml-2">
           <strong>Player</strong>
@@ -79,10 +73,10 @@
               <span>
                 <div
                   @click="play(song)"
-                  class="text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2 m-0"
+                  class="cursor-pointer text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2 m-0"
                 >
                   {{ song.title }}
-              </div>
+                </div>
               </span>
             </div>
             <div class="m-auto w-30">
@@ -126,10 +120,10 @@
               <span>
                 <div
                   @click="play(song)"
-                  class="text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2"
+                  class="cursor-pointer text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2"
                 >
                   {{ song.title }}
-              </div>
+                </div>
               </span>
             </div>
             <div class="m-auto w-30">
@@ -144,39 +138,83 @@
       </div>
     </div>
     <div
-      class="playbar bg-transparent w-full justify-center flex rounded-r text-white"
+      class="playbar w-full flex rounded-r text-white"
     >
-      <div class="pb-1 pt-1">
+    <div class="ml-6 gap-4 song-details flex">
+      <div><img :src="this.current.src" :alt="this.current.title" class="h-20 w-20 pt-1 rounded-full"></div>
+      <div class="pt-6">
+        <div>{{ this.current.title }}</div>
+        <div class="gap-2 song-duration flex">
+          <div class="current-time">0:00</div>
+          <div>
+            <input type="range" name="duration" id="song-duration" min="1" value="0" max="100" class="seek-slider"
+            onchange="seekTo()">
+          </div>
+          <div class="total-time">0:00</div>
+        </div>
+      </div>
+    </div>
+      <div class="pl-10 pb-1 pt-1 ml-32">
+        <font-awesome-icon
+          class="random-song cursor-pointer h-20 w-8 text-white duration-200"
+          icon="fa-solid fa-shuffle"
+          @click="randomSong()"
+        />
+      </div>
+      <div class="pl-16 pb-1 pt-1">
         <ChevronLeftIcon
-          class="h-20 w-10 text-white text-5xl"
+          class="prev-song cursor-pointer h-20 w-10 text-white text-5xl"
           @click="prevSong"
         />
       </div>
       <div class="pl-16 pb-1 pt-1">
         <PlayIcon
           v-if="!isPlaying"
-          class="h-20 w-10 text-white"
-          @click="play()"
+          class="play-song cursor-pointer h-20 w-10 text-white"
+          @click="play(song)"
         />
         <PauseIcon
           v-else
           @click="pause"
-          class="h-20 w-10 text-white duration-200"
+          class="pause-song cursor-pointer h-20 w-10 text-white duration-200"
         />
       </div>
       <div class="pl-16 pb-1 pt-1">
         <ChevronRightIcon
-          class="h-20 w-10 text-white duration-200"
+          class="next-song cursor-pointer h-20 w-10 text-white duration-200"
           @click="nextSong"
         />
       </div>
 
-      <div class="pl-16 pb-1 pt-1">
-        <RefreshIcon
-          class="h-20 w-10 text-white duration-200"
-          @click="shuffleSongs(songs)"
+      <div class="pl-16 pb-1 pt-1 mr-32">
+        <font-awesome-icon
+        icon="fa-solid fa-repeat"
+          class="repeat-song cursor-pointer h-20 w-8 text-white duration-200"
+          @click="repeatSong()"
         />
-        <i class="fa-shuffle"></i>
+      </div>
+      
+      <div class="gap-2 pl-32 volume-control">
+        <div class="pb-1 pt-1">
+          <font-awesome-icon
+          icon="fa-solid fa-volume-xmark"
+            class="cursor-pointer h-16 w-5 text-white duration-200"
+          />
+          <font-awesome-icon
+          icon="fa-solid fa-volume-low"
+            class="cursor-pointer h-16 w-5 text-white duration-200"
+          />
+        </div>
+        <div class="volume-range pb-1.5">
+          <input type="range" name="volume" id="vol-range" min="1" value="90" max="100" class="volume-slider"
+          onchange="setVolume()">
+        </div>
+        <div class="pb-1 pt-1">
+          <font-awesome-icon
+          icon="fa-solid fa-volume-high"
+            class="cursor-pointer h-20 w-8 text-white duration-200"
+          />
+        </div>
       </div>
       
     </div>
@@ -192,7 +230,6 @@ import { PlayIcon } from "@heroicons/vue/solid";
 import { PauseIcon } from "@heroicons/vue/solid";
 import { ChevronRightIcon } from "@heroicons/vue/solid";
 import { SearchIcon } from "@heroicons/vue/solid";
-import { RefreshIcon } from "@heroicons/vue/solid";
 // import Playbar from "../components/Playbar.vue";
 
 export default {
@@ -205,7 +242,6 @@ export default {
     ChevronRightIcon,
     ChevronLeftIcon,
     SearchIcon,
-    RefreshIcon,
     // Playbar,
   },
   data() {
@@ -217,8 +253,8 @@ export default {
       hover: false,
       songs: [],
       logo: {
-        src: require('../../public/favicon_io/Drick__Logo.png'),
-        title: "Mumia Logo"
+        src: require("../../public/favicon_io/Drick__Logo.png"),
+        title: "Mumia Logo",
       },
       limit: 5,
       // Set up the audio
@@ -285,17 +321,7 @@ export default {
       }
       return songArray;
     },
-    controlVol(current) {
-      let val = current.target.value;
-      let min = current.target.min;
-      let max = current.target.max;
-      let rate = (val - min) / (max - min);
-      this.percent = 100 * rate + "%";
-      console.log(this.percent, rate);
-    },
-    addToPlaylist(id) {
-      console.log(id);
-    },
+    
   },
   created() {
     this.songs = [
@@ -403,20 +429,103 @@ export default {
 .playbar {
   position: fixed;
   bottom: 2%;
+  background: linear-gradient(.50turn, #1e293b 50%, rgba(45, 35, 35, 0.855));
 }
+
+.song-details {
+  width: 350px;
+  border-right: 2px solid rgba(100, 116, 139, 0.3);
+}
+
+.active {
+  color: green;
+}
+
+.random-song,
+.prev-song,
+.play-song,
+.pause-song,
+.next-song,
+.repeat-song {
+  opacity:0.6;
+  transition: opacity .2s;
+}
+
+.random-song:hover,
+.prev-song:hover,
+.play-song:hover,
+.pause-song:hover,
+.next-song:hover,
+.repeat-song:hover {
+  opacity: 1.0;
+}
+
+.seek-slider,
+.volume-slider {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  height: 5px;
+  background: #64748b;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.seek-slider::-webkit-slider-thumb,
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  background: white;
+  border: 2px solid #64748b;
+  cursor: pointer;
+  border-radius: 100%;
+}
+
+.seek-slider:hover,
+.volume-slider:hover {
+  opacity: 1.0;
+}
+
+.seek-slider {
+  width: 200px;
+}
+
+.volume-slider {
+  width: 100px
+}
+
+.current-time,
+.total-time {
+  padding: 10px;
+}
+
+.rotate {
+  animation: rotation 8s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+
 
 .volume-control {
+  border-left: 2px solid rgba(100, 116, 139, 0.3);
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  transition: var(--transition);
 }
 
-.volume:hover {
-  display: block;
-}
 
 .volume {
   -webkit-app-region: no drag;
@@ -435,6 +544,8 @@ export default {
   border-radius: 100%;
   cursor: pointer;
 }
+
+
 
 /* =================== MEDIA QUERIES (MEDIUM DEVICES) ==================== */
 @media screen and (max-width: 1024px) {
