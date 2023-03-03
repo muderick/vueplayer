@@ -33,6 +33,7 @@
       <div class="nav gap-2 m-auto bg-transparent w-28 flex-row rounded-r">
         <Navbar v-on:home="reload" />
       </div>
+      <!-- SHOW THE CURRENT MUSIC PLAYING AND IMAGE -->
       <div
         v-show="isCurrent"
         class="isCurrent flex bg-gray-500 justify-center w-3/4 m-auto h-full py-4 text-center bg-cover"
@@ -51,6 +52,7 @@
           <Wave :class="this.waveClass" />
         </div>
       </div>
+      <!-- Show playlist display only when the current song is playing -->
       <div
         v-show="isCurrent"
         class="overflow-auto bg-transparent border-2 rounded-2xl border-gray-600 text-center my-auto w-full is_current"
@@ -60,12 +62,7 @@
         >
           Playlist
         </h2>
-        <!-- <Playlist
-          v-bind:songs="songs"
-          @play-song="play(song)"
-          @addto-playlist="addToPlaylist"
-        /> -->
-
+        <!-- Each song to be a button to play -->
         <div v-for="song in songs" :key="song.songSrc">
           <div
             class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
@@ -108,11 +105,6 @@
         >
           Playlist
         </h2>
-        <!-- <Playlist
-          :songs="songs"
-          @play-song="play(song)"
-          @addto-playlist="addToPlaylist"
-        /> -->
         <div v-for="song in songs" :key="song.songSrc">
           <div
             class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
@@ -138,6 +130,8 @@
         </div>
       </div>
     </div>
+    
+    <!-- PLAYBAR SECTION -->
     <div class="playbar w-full flex rounded-r text-white">
       <div class="ml-6 gap-4 song-details flex">
         <div>
@@ -188,7 +182,7 @@
         <PlayIcon
           v-if="!isPlaying"
           class="play-song cursor-pointer h-20 w-10 text-white"
-          @click="play(song)"
+          @click="play"
         />
         <PauseIcon
           v-else
@@ -233,7 +227,7 @@
             name="volume"
             id="vol-range"
             ref="volumeSlider"
-            min="0"
+            min="1"
             max="100"
             class="volume-slider"
             v-on:change="setVolume()"
@@ -287,6 +281,7 @@ export default {
       hover: false,
       isRepeatSong: false,
       repeatActive: null,
+      //Initialize songs
       songs: [],
       logo: {
         src: require("../../public/favicon_io/Drick__Logo.png"),
@@ -324,12 +319,10 @@ export default {
     },
 
     play(song) {
-      if (typeof song != "undefined") {
+      if (typeof song.songSrc != "undefined") {
         this.current = song;
         this.player.src = this.current.songSrc;
-        console.log(this.current);
       }
-      //this.index = id - 1;
       this.player.play();
       this.player.addEventListener(
         "ended",
@@ -354,6 +347,7 @@ export default {
       this.waveClass = null;
     },
     nextSong() {
+      this.index = this.current.id - 1;
       if (this.index < this.songs.length - 1 && this.isRandom === false) {
         this.index++;
       } else if (this.index < this.songs.length - 1 && this.isRandom === true) {
@@ -364,6 +358,7 @@ export default {
       }
       this.current = this.songs[this.index];
       this.play(this.current);
+      console.log(this.current);
     },
     prevSong() {
       this.index--;
@@ -375,7 +370,6 @@ export default {
     },
     repeatSong() {
       this.current = this.songs[this.index];
-      this.play(this.current);
       this.isRepeatSong ? this.pauseRepeat() : this.playRepeat();
       console.log(this.current);
     },
