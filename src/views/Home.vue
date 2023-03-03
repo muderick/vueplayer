@@ -45,9 +45,10 @@
         }"
       >
         <div
-          class="px-4 text-white mt-72 text-center text-4xl flex-wrap font-bold"
+          class="px-4 text-white mt-80 text-center text-4xl flex-wrap font-bold"
         >
           {{ this.current.title }}
+          <Wave :class="this.waveClass" />
         </div>
       </div>
       <div
@@ -81,7 +82,7 @@
             </div>
             <div class="m-auto w-30">
               <img
-                class="max-h-12 rounded pr-2"
+                class="max-h-12 rounded pr-2 object-cover"
                 v-bind:src="song.src"
                 alt="Image"
               />
@@ -128,7 +129,7 @@
             </div>
             <div class="m-auto w-30">
               <img
-                class="max-h-12 rounded pr-2"
+                class="max-h-12 rounded pr-2 object-cover"
                 v-bind:src="song.src"
                 alt="Image"
               />
@@ -137,26 +138,42 @@
         </div>
       </div>
     </div>
-    <div
-      class="playbar w-full flex rounded-r text-white"
-    >
-    <div class="ml-6 gap-4 song-details flex">
-      <div><img :src="this.current.src" :alt="this.current.title" class="h-20 w-20 pt-1 rounded-full"></div>
-      <div class="pt-6">
-        <div>{{ this.current.title }}</div>
-        <div class="gap-2 song-duration flex">
-          <div class="current-time">0:00</div>
-          <div>
-            <input type="range" name="duration" id="song-duration" min="1" value="0" max="100" class="seek-slider"
-            onchange="seekTo()">
+    <div class="playbar w-full flex rounded-r text-white">
+      <div class="ml-6 gap-4 song-details flex">
+        <div>
+          <img
+            class="h-20 w-20 pt-1 object-cover rounded-full"
+            :class="spinImage"
+            :src="this.current.src"
+            :alt="this.current.title"
+            ref="spinImage"
+          />
+        </div>
+        <div class="pt-4">
+          <div>{{ this.current.title }}</div>
+          <div class="gap-2 song-duration flex">
+            <div ref="currTime" class="current-time"></div>
+            <div class="mt-2.5">
+              <input
+                type="range"
+                name="duration"
+                id="song-duration"
+                ref="seekSlider"
+                min="1"
+                value="0"
+                max="100"
+                class="seek-slider cursor-pointer"
+                v-on:change="seekTo()"
+              />
+            </div>
+            <div ref="totalTime" class="total-time"></div>
           </div>
-          <div class="total-time">0:00</div>
         </div>
       </div>
-    </div>
       <div class="pl-10 pb-1 pt-1 ml-32">
         <font-awesome-icon
           class="random-song cursor-pointer h-20 w-8 text-white duration-200"
+          :class="randomActive"
           icon="fa-solid fa-shuffle"
           @click="randomSong()"
         />
@@ -188,35 +205,47 @@
 
       <div class="pl-16 pb-1 pt-1 mr-32">
         <font-awesome-icon
-        icon="fa-solid fa-repeat"
+          icon="fa-solid fa-repeat"
           class="repeat-song cursor-pointer h-20 w-8 text-white duration-200"
+          :class="repeatActive"
           @click="repeatSong()"
         />
       </div>
-      
+
       <div class="gap-2 pl-32 volume-control">
         <div class="pb-1 pt-1">
           <font-awesome-icon
-          icon="fa-solid fa-volume-xmark"
+            v-if="!isMuted"
+            icon="fa-solid fa-volume-low"
             class="cursor-pointer h-16 w-5 text-white duration-200"
+            @click="muteSong"
           />
           <font-awesome-icon
-          icon="fa-solid fa-volume-low"
+            v-else
+            icon="fa-solid fa-volume-xmark"
             class="cursor-pointer h-16 w-5 text-white duration-200"
+            @click="unMute"
           />
         </div>
         <div class="volume-range pb-1.5">
-          <input type="range" name="volume" id="vol-range" min="1" value="90" max="100" class="volume-slider"
-          onchange="setVolume()">
+          <input
+            type="range"
+            name="volume"
+            id="vol-range"
+            ref="volumeSlider"
+            min="0"
+            max="100"
+            class="volume-slider"
+            v-on:change="setVolume()"
+          />
         </div>
         <div class="pb-1 pt-1">
           <font-awesome-icon
-          icon="fa-solid fa-volume-high"
+            icon="fa-solid fa-volume-high"
             class="cursor-pointer h-20 w-8 text-white duration-200"
           />
         </div>
       </div>
-      
     </div>
   </div>
 </template>
@@ -230,7 +259,7 @@ import { PlayIcon } from "@heroicons/vue/solid";
 import { PauseIcon } from "@heroicons/vue/solid";
 import { ChevronRightIcon } from "@heroicons/vue/solid";
 import { SearchIcon } from "@heroicons/vue/solid";
-// import Playbar from "../components/Playbar.vue";
+import Wave from "../components/Wave.vue";
 
 export default {
   name: "Home",
@@ -242,15 +271,22 @@ export default {
     ChevronRightIcon,
     ChevronLeftIcon,
     SearchIcon,
-    // Playbar,
+    Wave,
   },
   data() {
     return {
+      randomActive: null,
+      spinImage: null,
+      waveClass: null,
       current: {},
       index: 0,
       isPlaying: false,
       isCurrent: false,
+      isRandom: false,
+      isMuted: false,
       hover: false,
+      isRepeatSong: false,
+      repeatActive: null,
       songs: [],
       logo: {
         src: require("../../public/favicon_io/Drick__Logo.png"),
@@ -265,6 +301,26 @@ export default {
     reload() {
       this.isPlaying = false;
       this.isCurrent = false;
+    },
+
+    reset() {
+      this.$refs.currTime.innerText = "00:00";
+      this.$refs.totalTime.innerText = "00:00";
+      this.$refs.seekSlider.value = 0;
+    },
+
+    randomSong() {
+      this.isRandom ? this.pauseRandom() : this.playRandom();
+    },
+
+    playRandom() {
+      this.isRandom = true;
+      this.randomActive = "active";
+    },
+
+    pauseRandom() {
+      this.isRandom = false;
+      this.randomActive = null;
     },
 
     play(song) {
@@ -286,16 +342,24 @@ export default {
           this.play(this.current);
         }.bind(this)
       );
+      this.spinImage = "rotate";
+      this.waveClass = "loader";
       this.isPlaying = true;
       this.isCurrent = true;
     },
     pause() {
       this.player.pause();
       this.isPlaying = false;
+      this.spinImage = null;
+      this.waveClass = null;
     },
     nextSong() {
-      this.index++;
-      if (this.index > this.songs.length - 1) {
+      if (this.index < this.songs.length - 1 && this.isRandom === false) {
+        this.index++;
+      } else if (this.index < this.songs.length - 1 && this.isRandom === true) {
+        let random_index = Number.parseInt(Math.random() * this.songs.length);
+        this.index = random_index;
+      } else {
         this.index = 0;
       }
       this.current = this.songs[this.index];
@@ -309,20 +373,94 @@ export default {
       this.current = this.songs[this.index];
       this.play(this.current);
     },
-    shuffleSongs(songs) {
-      let songArray = [...songs];
-
-      for (let i = 0; i < songArray.length; i++) {
-        const randomSong = songArray.splice(
-          Math.floor((songArray.length - i) * Math.random()),
-          1
-        );
-        songArray.push(...randomSong);
-      }
-      return songArray;
+    repeatSong() {
+      this.current = this.songs[this.index];
+      this.play(this.current);
+      this.isRepeatSong ? this.pauseRepeat() : this.playRepeat();
+      console.log(this.current);
     },
-    
+
+    playRepeat() {
+      this.isRepeatSong = true;
+      this.repeatActive = "repeat-active";
+    },
+
+    pauseRepeat() {
+      this.isRepeatSong = false;
+      this.repeatActive = null;
+    },
+
+    muteSong() {
+      this.player.volume = 0;
+      this.isMuted = true;
+    },
+
+    unMute() {
+      this.player.volume = this.$refs.volumeSlider.value / 100;
+      this.isMuted = false;
+    },
+
+    setVolume() {
+      if (this.player.volume !== 0) {
+        this.player.volume = this.$refs.volumeSlider.value / 100;
+        this.isMuted = false;
+      } else {
+        this.player.volume = this.$refs.volumeSlider.value / 100;
+        this.isMuted = true;
+      }
+    },
+
+    seekTo() {
+      let seek_to = this.player.duration * (this.$refs.seekSlider.value / 100);
+      this.player.currentTime = seek_to;
+    },
+
+    setUpdate() {
+      let seekPosition = 0;
+      if (!isNaN(this.player.duration)) {
+        seekPosition = this.player.currentTime * (100 / this.player.duration);
+        this.$refs.seekSlider.value = seekPosition;
+
+        let currentMinutes = Math.floor(this.player.currentTime / 60);
+        let currentSeconds = Math.floor(
+          this.player.currentTime - currentMinutes * 60
+        );
+        let durationMinutes = Math.floor(this.player.duration / 60);
+        let durationSeconds = Math.floor(
+          this.player.duration - durationMinutes * 60
+        );
+
+        if (currentSeconds < 10) {
+          currentSeconds = "0" + currentSeconds;
+        }
+        if (durationSeconds < 10) {
+          durationSeconds = "0" + durationSeconds;
+        }
+        if (currentMinutes < 10) {
+          currentMinutes = "0" + currentMinutes;
+        }
+        if (durationMinutes < 10) {
+          durationMinutes = "0" + durationMinutes;
+        }
+
+        this.$refs.currTime.innerText = `${currentMinutes} : ${currentSeconds}`;
+        this.$refs.totalTime.innerText = `${durationMinutes} : ${durationSeconds}`;
+      }
+    },
   },
+
+  mounted() {
+    let updateTimer;
+    clearInterval(updateTimer);
+    this.reset();
+
+    this.player.load();
+    updateTimer = setInterval(this.setUpdate, 1000);
+
+    this.player.addEventListener("ended", this.nextSong);
+    //this.reload();
+  },
+
   created() {
     this.songs = [
       {
@@ -429,16 +567,20 @@ export default {
 .playbar {
   position: fixed;
   bottom: 2%;
-  background: linear-gradient(.50turn, #1e293b 50%, rgba(45, 35, 35, 0.855));
+  background: linear-gradient(0.5turn, #1e293b 50%, rgba(45, 35, 35, 0.855));
 }
 
 .song-details {
-  width: 350px;
+  width: 400px;
   border-right: 2px solid rgba(100, 116, 139, 0.3);
 }
 
 .active {
   color: green;
+}
+
+.repeat-active {
+  color: rgb(42, 150, 42);
 }
 
 .random-song,
@@ -447,8 +589,8 @@ export default {
 .pause-song,
 .next-song,
 .repeat-song {
-  opacity:0.6;
-  transition: opacity .2s;
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }
 
 .random-song:hover,
@@ -457,7 +599,7 @@ export default {
 .pause-song:hover,
 .next-song:hover,
 .repeat-song:hover {
-  opacity: 1.0;
+  opacity: 1;
 }
 
 .seek-slider,
@@ -467,8 +609,8 @@ export default {
   appearance: none;
   height: 5px;
   background: #64748b;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
 }
 
 .seek-slider::-webkit-slider-thumb,
@@ -486,7 +628,7 @@ export default {
 
 .seek-slider:hover,
 .volume-slider:hover {
-  opacity: 1.0;
+  opacity: 1;
 }
 
 .seek-slider {
@@ -494,7 +636,7 @@ export default {
 }
 
 .volume-slider {
-  width: 100px
+  width: 100px;
 }
 
 .current-time,
@@ -514,10 +656,10 @@ export default {
     transform: rotate(359deg);
   }
 }
+
 .cursor-pointer {
   cursor: pointer;
 }
-
 
 .volume-control {
   border-left: 2px solid rgba(100, 116, 139, 0.3);
@@ -525,7 +667,6 @@ export default {
   justify-content: center;
   align-items: center;
 }
-
 
 .volume {
   -webkit-app-region: no drag;
@@ -544,8 +685,6 @@ export default {
   border-radius: 100%;
   cursor: pointer;
 }
-
-
 
 /* =================== MEDIA QUERIES (MEDIUM DEVICES) ==================== */
 @media screen and (max-width: 1024px) {
