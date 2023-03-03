@@ -353,6 +353,8 @@ export default {
       } else if (this.index < this.songs.length - 1 && this.isRandom === true) {
         let random_index = Number.parseInt(Math.random() * this.songs.length);
         this.index = random_index;
+      } else if(this.isRepeatSong === true){
+          this.index;
       } else {
         this.index = 0;
       }
@@ -369,7 +371,14 @@ export default {
       this.play(this.current);
     },
     repeatSong() {
-      this.current = this.songs[this.index];
+      this.player.addEventListener(
+        "ended",
+        function () {
+          this.index = this.current.id - 1;
+          this.current = this.songs[this.index];
+          this.play(this.current);
+        }.bind(this)
+      );
       this.isRepeatSong ? this.pauseRepeat() : this.playRepeat();
       console.log(this.current);
     },
