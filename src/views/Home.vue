@@ -19,6 +19,7 @@
 
         <input
           type="text"
+          v-model="searchTerm"
           class="text-center bg-transparent text-white text-xl outline-none pl-4 py-1"
           style="width: -webkit-fill-available"
           placeholder="Search for music"
@@ -35,10 +36,10 @@
       </div>
       <!-- SHOW THE CURRENT MUSIC PLAYING AND IMAGE -->
       <div
-        v-show="isCurrent"
+        v-if="isCurrent && this.current"
         class="isCurrent flex bg-gray-500 justify-center w-3/4 m-auto h-full py-4 text-center bg-cover"
         :style="{
-          backgroundImage: `url(${this.current.src})`,
+          backgroundImage: `url(${this.current.album.images[0].url})`,
           backgroundSize: `cover`,
           borderRadius: `2rem`,
           backgroundRepeat: `no-repeat`,
@@ -48,7 +49,10 @@
         <div
           class="px-4 text-white mt-80 text-center text-4xl flex-wrap font-bold"
         >
-          {{ this.current.title }}
+          {{
+            this.current.name.charAt(0).toUpperCase() +
+            this.current.name.slice(1)
+          }}
           <Wave :class="this.waveClass" />
         </div>
       </div>
@@ -63,9 +67,10 @@
           Playlist
         </h2>
         <!-- Each song to be a button to play -->
-        <div v-for="song in songs" :key="song.songSrc">
+        <div v-for="(song, index) in filteredSongs" :key="index">
           <div
             class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
+            v-if="song.track"
           >
             <div class="w-80">
               <span>
@@ -73,14 +78,18 @@
                   @click="play(song)"
                   class="cursor-pointer text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2 m-0"
                 >
-                  {{ song.title }}
+                  {{
+                    song.track.name.charAt(0).toUpperCase() +
+                    song.track.name.slice(1)
+                  }}
+                  - {{ index }}
                 </div>
               </span>
             </div>
             <div class="m-auto w-30">
               <img
                 class="max-h-12 rounded pr-2 object-cover"
-                v-bind:src="song.src"
+                v-bind:src="song.track.album.images[0].url"
                 alt="Image"
               />
             </div>
@@ -105,9 +114,10 @@
         >
           Playlist
         </h2>
-        <div v-for="song in songs" :key="song.songSrc">
+        <div v-for="(song, index) in filteredSongs" :key="index">
           <div
             class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
+            v-if="song.track"
           >
             <div class="w-80">
               <span>
@@ -115,14 +125,17 @@
                   @click="play(song)"
                   class="cursor-pointer text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2"
                 >
-                  {{ song.title }}
+                  {{
+                    song.track.name.charAt(0).toUpperCase() +
+                    song.track.name.slice(1)
+                  }}
                 </div>
               </span>
             </div>
             <div class="m-auto w-30">
               <img
                 class="max-h-12 rounded pr-2 object-cover"
-                v-bind:src="song.src"
+                v-bind:src="song.track.album.images[0].url"
                 alt="Image"
               />
             </div>
@@ -130,21 +143,21 @@
         </div>
       </div>
     </div>
-    
+
     <!-- PLAYBAR SECTION -->
     <div class="playbar w-full flex rounded-r text-white">
-      <div class="ml-6 gap-4 song-details flex">
+      <div class="ml-6 gap-4 song-details flex" v-if="current">
         <div>
           <img
             class="h-20 w-20 pt-1 object-cover rounded-full"
             :class="spinImage"
-            :src="this.current.src"
-            :alt="this.current.title"
+            src="../assets/images/vinyl.jpg"
+            :alt="this.current.name"
             ref="spinImage"
           />
         </div>
         <div class="pt-4">
-          <div>{{ this.current.title }}</div>
+          <div>{{ this.current.name }}</div>
           <div class="gap-2 song-duration flex">
             <div ref="currTime" class="current-time"></div>
             <div class="mt-2.5">
@@ -164,6 +177,7 @@
           </div>
         </div>
       </div>
+
       <div class="pl-10 pb-1 pt-1 ml-32">
         <font-awesome-icon
           class="random-song cursor-pointer h-20 w-8 text-white duration-200"
@@ -254,6 +268,7 @@ import { PauseIcon } from "@heroicons/vue/solid";
 import { ChevronRightIcon } from "@heroicons/vue/solid";
 import { SearchIcon } from "@heroicons/vue/solid";
 import Wave from "../components/Wave.vue";
+//import axios from 'axios/axios.js';
 
 export default {
   name: "Home",
@@ -269,6 +284,7 @@ export default {
   },
   data() {
     return {
+      searchTerm: "",
       randomActive: null,
       spinImage: null,
       waveClass: null,
@@ -287,7 +303,6 @@ export default {
         src: require("../../public/favicon_io/Drick__Logo.png"),
         title: "Mumia Logo",
       },
-      limit: 5,
       // Set up the audio
       player: new Audio(),
     };
@@ -319,16 +334,29 @@ export default {
     },
 
     play(song) {
-      if (typeof song.songSrc != "undefined") {
-        this.current = song;
-        this.player.src = this.current.songSrc;
+      if (song.track && typeof song.track.preview_url != "undefined") {
+        this.current = song.track;
+        this.player.src = this.current.uri;
       }
       this.player.play();
       this.player.addEventListener(
         "ended",
         function () {
-          this.index++;
-          if (this.index > this.songs.length - 1) {
+          if (this.index < this.songs.length - 1 && this.isRandom === false) {
+            this.index++;
+          } else if (
+            this.index < this.songs.length - 1 &&
+            this.isRandom === true
+          ) {
+            let random_index = Number.parseInt(
+              Math.random() * this.songs.length
+            );
+            this.index = random_index;
+          } else if (
+            this.isRepeatSong === true
+          ) {
+            this.index;
+          } else {
             this.index = 0;
           }
           this.current = this.songs[this.index];
@@ -347,20 +375,21 @@ export default {
       this.waveClass = null;
     },
     nextSong() {
-      this.index = this.current.id - 1;
       if (this.index < this.songs.length - 1 && this.isRandom === false) {
         this.index++;
       } else if (this.index < this.songs.length - 1 && this.isRandom === true) {
         let random_index = Number.parseInt(Math.random() * this.songs.length);
         this.index = random_index;
-      } else if(this.isRepeatSong === true){
-          this.index;
+      } else if (
+        this.isRepeatSong === true &&
+        (this.isRandom === true || this.isRandom === false)
+      ) {
+        this.index;
       } else {
         this.index = 0;
       }
       this.current = this.songs[this.index];
       this.play(this.current);
-      console.log(this.current);
     },
     prevSong() {
       this.index--;
@@ -374,7 +403,7 @@ export default {
       this.player.addEventListener(
         "ended",
         function () {
-          this.index = this.current.id - 1;
+          this.index = this.current.index;
           this.current = this.songs[this.index];
           this.play(this.current);
         }.bind(this)
@@ -464,58 +493,114 @@ export default {
     //this.reload();
   },
 
-  created() {
-    this.songs = [
-      {
-        id: 1,
-        title: "6LACK - Seasons ft. Khalid",
-        src: require("../assets/images/kseasons.webp"),
-        songSrc: require("../assets/music/6LACK - Seasons ft. Khalid.mp3"),
+  async created() {
+    const url =
+      "https://spotify23.p.rapidapi.com/playlist_tracks/?id=6FKDzNYZ8IW1pvYVF4zUN2&offset=1&limit=100";
+    const options = {
+      method: "GET",
+      headers: {
+        "X-RapidAPI-Key": "3bc252b430msheb81b004aa32ca6p173feajsna369d30cc4a5",
+        "X-RapidAPI-Host": "spotify23.p.rapidapi.com",
       },
-      {
-        id: 2,
-        title: "Diamond Heart - Alan Walker",
-        src: require("../assets/images/awdiamond-heart.webp"),
-        songSrc: require("../assets/music/Alan Walker - Diamond Heart (feat. Sophi-(You2Audio.Com).mp3"),
-      },
-      {
-        id: 3,
-        title: "Back To  Sleep - Chris Brown",
-        src: require("../assets/images/cbback-to-sleep.webp"),
-        songSrc: require("../assets/music/Chris Brown - Back To Sleep (Official Mu-(You2Audio.Com).mp3"),
-      },
-      {
-        id: 4,
-        title: "Privacy - Chris Brown",
-        src: require("../assets/images/cbprivacy.webp"),
-        songSrc: require("../assets/music/Chris Brown - Privacy (Official Music VI-(You2Audio.Com).mp3"),
-      },
-      {
-        id: 5,
-        title: "Want Something - Chris Brown",
-        src: require("../assets/images/cbwant-something.webp"),
-        songSrc: require("../assets/music/Chris Brown - Want Something (Music Vide-(You2Audio.Com).mp3"),
-      },
-      {
-        id: 6,
-        title: "Without Me - Halsey",
-        src: require("../assets/images/hwithout-me.webp"),
-        songSrc: require("../assets/music/Halsey - Without Me (Official Audio)-(You2Audio.Com).mp3"),
-      },
-      {
-        id: 7,
-        title: "Y.O.U - Luh Kel",
-        src: require("../assets/images/lkyou.webp"),
-        songSrc: require("../assets/music/Luh_Kel_-_Y.O.U._(Official_Music_Video)(720p).mp3"),
-      },
-    ];
+    };
+
+    try {
+      const response = await fetch(url, options);
+      const result = await response.json();
+      this.songs = result.items.sort(function (a, b) {
+        return (
+          a.track.track_number - b.track.track_number ||
+          a.track.name.localeCompare(b.track.name)
+        );
+      });
+      console.log(result.items);
+    } catch (error) {
+      console.error(error);
+    }
+
+    // while (responseCount === limit) {
+    //   try {
+    //     const response = await fetch(
+    //       `${url}?offset=${offset}&limit=${limit}`,
+    //       options
+    //     );
+    //     const result = await response.json();
+    //     this.songs = this.songs.result.items.sort(function (a, b) {
+    //       return (
+    //         a.track.track_number - b.track.track_number ||
+    //         a.track.name.localeCompare(b.track.name)
+    //       );
+    //     });
+    //     responseCount = result.items.length;
+    //     offset += offset;
+    //     console.log(result.items);
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // }
+
+    // this.songs = [
+    //   {
+    //     id: 1,
+    //     title: "6LACK - Seasons ft. Khalid",
+    //     src: require("../assets/images/kseasons.webp"),
+    //     songSrc: require("../assets/music/6LACK - Seasons ft. Khalid.mp3"),
+    //   },
+    //   {
+    //     id: 2,
+    //     title: "Diamond Heart - Alan Walker",
+    //     src: require("../assets/images/awdiamond-heart.webp"),
+    //     songSrc: require("../assets/music/Alan Walker - Diamond Heart (feat. Sophi-(You2Audio.Com).mp3"),
+    //   },
+    //   {
+    //     id: 3,
+    //     title: "Back To  Sleep - Chris Brown",
+    //     src: require("../assets/images/cbback-to-sleep.webp"),
+    //     songSrc: require("../assets/music/Chris Brown - Back To Sleep (Official Mu-(You2Audio.Com).mp3"),
+    //   },
+    //   {
+    //     id: 4,
+    //     title: "Privacy - Chris Brown",
+    //     src: require("../assets/images/cbprivacy.webp"),
+    //     songSrc: require("../assets/music/Chris Brown - Privacy (Official Music VI-(You2Audio.Com).mp3"),
+    //   },
+    //   {
+    //     id: 5,
+    //     title: "Want Something - Chris Brown",
+    //     src: require("../assets/images/cbwant-something.webp"),
+    //     songSrc: require("../assets/music/Chris Brown - Want Something (Music Vide-(You2Audio.Com).mp3"),
+    //   },
+    //   {
+    //     id: 6,
+    //     title: "Without Me - Halsey",
+    //     src: require("../assets/images/hwithout-me.webp"),
+    //     songSrc: require("../assets/music/Halsey - Without Me (Official Audio)-(You2Audio.Com).mp3"),
+    //   },
+    //   {
+    //     id: 7,
+    //     title: "Y.O.U - Luh Kel",
+    //     src: require("../assets/images/lkyou.webp"),
+    //     songSrc: require("../assets/music/Luh_Kel_-_Y.O.U._(Official_Music_Video)(720p).mp3"),
+    //   },
+    // ];
     this.current = this.songs[this.index];
-    this.player.src = this.current.songSrc;
+    this.player.src = this.current.uri;
   },
 
   computed: {
-    computedSongs() {
-      return this.limit ? this.songs.slice(0, this.limit) : this.songs;
+    filteredSongs() {
+      let songs = this.songs;
+
+      // Process search input
+      if (this.searchTerm != "" && this.searchTerm) {
+        songs = songs.filter((song) => {
+          return song.track.name
+            .toUpperCase()
+            .includes(this.searchTerm.toUpperCase());
+        });
+      }
+
+      return songs;
     },
   },
 };
