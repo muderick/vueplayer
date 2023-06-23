@@ -1,12 +1,4 @@
 <template>
-  <div class="homeicon-div text-white flex py-5 p-2 pl-8 sm_m-auto">
-    <span
-      ><HomeIcon
-        class="home-icon h-10 w-5 text-white"
-        v-on:click="$emit('home')"
-      />Home</span
-    >
-  </div>
   <div class="musicnoteicon-div p-2 py-5 pl-8 text-white sm_m-auto">
     <MusicNoteIcon class="musicnote-icon h-10 w-5 text-white" />Playlist
   </div>
@@ -21,14 +13,12 @@
 </template>
 
 <script>
-import { HomeIcon } from "@heroicons/vue/solid";
 import { MusicNoteIcon } from "@heroicons/vue/solid";
 import { InformationCircleIcon } from "@heroicons/vue/solid";
 
 export default {
   name: "Navbar",
   components: {
-    HomeIcon,
     MusicNoteIcon,
     InformationCircleIcon,
   },

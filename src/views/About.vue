@@ -1,12 +1,12 @@
 <template>
-  <div id="about" class="h-full bg-gray-300 flex flex-row">
+  <div id="about" class="h-screen bg-gray-300 flex flex-row">
     <div class="flex pt-5 pl-5">
-      <router-link to="/" @mouseover="hover = true" @mouseleave="hover = false">
+      <a href="/" @mouseover="hover = true" @mouseleave="hover = false">
         <HomeIcon v-if="hover" class="text-yellow-700 h-20 w-10" />
         <HomeIcon v-else class="text-white h-20 w-10" />
-        <span v-if="hover" class="text-yellow-700 text-xl font-bold">Home</span>
-        <span v-else class="text-yellow-700 text-xl font-light">Home</span>
-      </router-link>
+        <span v-if="hover" class="text-white text-xl font-bold">Home</span>
+        <span v-else class="text-yellow-700 text-xl font-bold">Home</span>
+      </a>
     </div>
     <div class="justify-around w-full text-center pt-40">
       <div>

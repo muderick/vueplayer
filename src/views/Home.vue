@@ -31,8 +31,8 @@
       id="container-music"
       class="content h-content flex lg:gap-10 md:gap-5 pt-4"
     >
-      <div class="nav gap-2 m-auto bg-transparent w-28 flex-row rounded-r">
-        <Navbar v-on:home="reload" />
+      <div class="nav mt-12 gap-2 bg-transparent w-28 flex-row rounded-r">
+        <Navbar />
       </div>
       <!-- SHOW THE CURRENT MUSIC PLAYING AND IMAGE -->
       <div
@@ -64,7 +64,7 @@
           Playlist
         </h2>
         <!-- Each song to be a button to play -->
-        <div v-for="song in songs" :key="song.songSrc">
+        <div v-for="song in filteredSongs" :key="song.songSrc">
           <div
             class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
           >
@@ -108,7 +108,7 @@
         >
           Playlist
         </h2>
-        <div v-for="song in songs" :key="song.songSrc">
+        <div v-for="song in filteredSongs" :key="song.songSrc">
           <div
             class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
           >
@@ -253,7 +253,6 @@
 <script>
 // @ is an alias to /src
 import Navbar from "../components/Navbar.vue";
-//import Playlist from "../components/Playlist.vue";
 import { ChevronLeftIcon } from "@heroicons/vue/solid";
 import { PlayIcon } from "@heroicons/vue/solid";
 import { PauseIcon } from "@heroicons/vue/solid";
@@ -265,7 +264,6 @@ export default {
   name: "Home",
   components: {
     Navbar,
-    //Playlist,
     PlayIcon,
     PauseIcon,
     ChevronRightIcon,
@@ -296,14 +294,10 @@ export default {
       },
       // Set up the audio
       player: new Audio(),
+      loop: false,
     };
   },
   methods: {
-    reload() {
-      this.isPlaying = false;
-      this.isCurrent = false;
-    },
-
     reset() {
       this.$refs.currTime.innerText = "00:00";
       this.$refs.totalTime.innerText = "00:00";
@@ -333,8 +327,20 @@ export default {
       this.player.addEventListener(
         "ended",
         function () {
-          this.index++;
-          if (this.index > this.songs.length - 1) {
+          this.index = this.current.id - 2;
+          if (this.index < this.songs.length - 1 && this.isRandom === false) {
+            this.index++;
+          } else if (
+            this.index < this.songs.length - 1 &&
+            this.isRandom === true
+          ) {
+            let random_index = Number.parseInt(
+              Math.random() * this.songs.length
+            );
+            this.index = random_index;
+          } else if (this.isRepeatSong === true && this.loop === true) {
+            this.index;
+          } else {
             this.index = 0;
           }
           this.current = this.songs[this.index];
@@ -359,8 +365,6 @@ export default {
       } else if (this.index < this.songs.length - 1 && this.isRandom === true) {
         let random_index = Number.parseInt(Math.random() * this.songs.length);
         this.index = random_index;
-      } else if(this.isRepeatSong === true){
-          this.index;
       } else {
         this.index = 0;
       }
@@ -376,14 +380,16 @@ export default {
       this.play(this.current);
     },
     repeatSong() {
-      this.isRepeatSong ? this.playRepeat() : this.pauseRepeat();
+      this.isRepeatSong ? this.pauseRepeat() : this.playRepeat() ;
     },
 
     playRepeat() {
-      this.player.loop();
       this.loop = true;
-      this.isRepeatSong = true;
+      if(this.loop === true) {
+        this.isRepeatSong = true;
       this.repeatActive = "repeat-active";
+      this.player.loop = this.loop;
+      }
     },
 
     pauseRepeat() {
@@ -549,6 +555,7 @@ export default {
         songSrc: "https://samplesongs.netlify.app/Solo.mp3",
         id: 12,
       },
+      
     ];
     this.current = this.songs[this.index];
     this.player.src = this.current.songSrc;
