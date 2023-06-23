@@ -64,7 +64,7 @@
           Playlist
         </h2>
         <!-- Each song to be a button to play -->
-        <div v-for="(song, songSrc) in filteredSongs" :key="songSrc">
+        <div v-for="song in songs" :key="song.songSrc">
           <div
             class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
           >
@@ -108,7 +108,7 @@
         >
           Playlist
         </h2>
-        <div v-for="(song, songSrc) in filteredSongs" :key="songSrc">
+        <div v-for="song in songs" :key="song.songSrc">
           <div
             class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
           >
@@ -260,7 +260,6 @@ import { PauseIcon } from "@heroicons/vue/solid";
 import { ChevronRightIcon } from "@heroicons/vue/solid";
 import { SearchIcon } from "@heroicons/vue/solid";
 import Wave from "../components/Wave.vue";
-//import axios from 'axios/axios.js';
 
 export default {
   name: "Home",
@@ -334,9 +333,8 @@ export default {
       this.player.addEventListener(
         "ended",
         function () {
-          if (this.index < this.songs.length - 1) {
-            this.index++;
-          } else {
+          this.index++;
+          if (this.index > this.songs.length - 1) {
             this.index = 0;
           }
           this.current = this.songs[this.index];
@@ -355,12 +353,15 @@ export default {
       this.waveClass = null;
     },
     nextSong() {
-      if (this.index < this.songs.length - 1) {
+      this.index = this.current.id - 1;
+      if (this.index < this.songs.length - 1 && this.isRandom === false) {
         this.index++;
       } else if (this.index < this.songs.length - 1 && this.isRandom === true) {
         let random_index = Number.parseInt(Math.random() * this.songs.length);
         this.index = random_index;
-      } else if (this.index > this.songs.length) {
+      } else if(this.isRepeatSong === true){
+          this.index;
+      } else {
         this.index = 0;
       }
       this.current = this.songs[this.index];
