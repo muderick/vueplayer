@@ -179,7 +179,7 @@
       </div>
 
       <div class="play-controls">
-        <div class="randsong_div pl-10 pb-1 pt-1 ml-32">
+        <div class="randsong_div pl-10 pb-1 pt-1 ml-20">
           <font-awesome-icon
             class="random-song cursor-pointer h-20 w-8 text-white duration-200"
             :class="randomActive"

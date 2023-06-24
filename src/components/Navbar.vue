@@ -1,6 +1,12 @@
 <template>
   <div class="musicnoteicon-div p-2 py-5 pl-8 text-white sm_m-auto">
-    <MusicNoteIcon class="musicnote-icon h-10 w-5 text-white" />Playlist
+    <router-link to="/">
+      <MusicNoteIcon
+        class="musicnote-icon h-10 w-5 text-white"
+        :class="active"
+        @click="toggleActive"
+      />Playlist
+    </router-link>
   </div>
   <div class="about-div p-2 pl-8 text-white sm_m-auto">
     <router-link to="/about">
@@ -25,29 +31,28 @@ export default {
   data() {
     return {
       isHidden: false,
+      active: null,
+      isActive: false,
     };
+  },
+  methods: {
+    toggleActive() {
+      this.isActive ? this.removeActive() : this.setActive();
+    },
+    setActive() {
+      this.isActive = true;
+      this.active = "active-class";
+    },
+    removeActive() {
+      this.isActive = false;
+      this.active = null;
+    },
   },
   emits: ["home"],
 };
 </script>
 
 <style scoped>
-.home-icon {
-  height: 5rem;
-  width: 3rem;
-}
-.homeicon-div:hover {
-  cursor: pointer;
-}
-
-.viewlist-icon {
-  height: 5rem;
-  width: 3rem;
-}
-.viewlisticon-div:hover {
-  cursor: pointer;
-}
-
 .musicnote-icon {
   height: 5rem;
   width: 3rem;
@@ -56,20 +61,15 @@ export default {
   cursor: pointer;
 }
 
+.active-class {
+  color: slategrey;
+}
+
 .informationcircle-icon {
   height: 5rem;
   width: 3rem;
 }
 .about-div:hover {
-  cursor: pointer;
-}
-
-.usericon-div {
-  padding-top: 1.25rem /* 20px */;
-  padding-bottom: 1.25rem /* 20px */;
-  padding-left: 2rem;
-}
-.usericon-div:hover {
   cursor: pointer;
 }
 
