@@ -10,7 +10,7 @@
         </div>
       </div>
       <div
-        class="flex w-2/3 p-2 bg-gray-600 gap-4 rounded-full min-w-min m-auto"
+        class="search-bar flex w-2/3 p-2 gap-4 rounded-full min-w-min m-auto"
         style="width: 50%"
       >
         <div class="w-7 pl-4">
@@ -22,7 +22,7 @@
           v-model="searchTerm"
           class="text-center bg-transparent text-white text-xl outline-none pl-4 py-1"
           style="width: -webkit-fill-available"
-          placeholder="Search for music"
+          placeholder="Search for music..."
         />
       </div>
     </div>
@@ -49,14 +49,14 @@
         <div
           class="px-4 text-white mt-80 text-center text-4xl flex-wrap font-bold"
         >
-          {{ this.current.title }} - {{ this.current.artist }}
+          {{ this.current.artist }} - {{ this.current.title }}
           <Wave :class="this.waveClass" />
         </div>
       </div>
       <!-- Show playlist display only when the current song is playing -->
       <div
         v-show="isCurrent"
-        class="overflow-auto bg-transparent border-2 rounded-2xl border-gray-600 text-center my-auto w-full is_current"
+        class="overflow-auto bg-transparent border-2 rounded-2xl border-gray-600 my-auto w-full h-full is_current pl-8"
       >
         <h2
           class="text-center font-bold py-8 text-xl sm:text-2xl lg:text-4xl text-white all-small-caps px-4 border-1"
@@ -64,17 +64,21 @@
           Playlist
         </h2>
         <!-- Each song to be a button to play -->
-        <div v-for="song in filteredSongs" :key="song.songSrc">
+        <div v-for="(song, index) in filteredSongs" :key="index">
           <div
-            class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
+            @click="
+              play(song);
+              selectSong(index);
+            "
+            class="py-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
+            :class="{ playactive: index === activeSong }"
           >
-            <div class="w-80">
+            <div class="w-80 cursor-pointer">
               <span>
                 <div
-                  @click="play(song)"
-                  class="cursor-pointer text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2 m-0"
+                  class="text-white my-auto p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2 m-0"
                 >
-                  {{ song.title }} - {{ song.artist }}
+                  {{ song.artist }} - {{ song.title }}
                 </div>
               </span>
             </div>
@@ -108,17 +112,21 @@
         >
           Playlist
         </h2>
-        <div v-for="song in filteredSongs" :key="song.songSrc">
+        <div v-for="(song, index) in filteredSongs" :key="index">
           <div
-            class="mb-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
+            @click="
+              play(song);
+              selectSong(index);
+            "
+            class="py-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
+            :class="{ playactive: index === activeSong }"
           >
-            <div class="w-80">
+            <div class="w-80 cursor-pointer">
               <span>
                 <div
-                  @click="play(song)"
-                  class="cursor-pointer text-white hover:bg-gray-600 p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2"
+                  class="text-white my-auto p-1 font-light text-l rounded-md md:w-3/4 sm:w-3/4 gap-x-2"
                 >
-                  {{ song.title }} - {{ song.artist }}
+                  {{ song.artist }} - {{ song.title }}
                 </div>
               </span>
             </div>
@@ -149,7 +157,7 @@
           />
         </div>
         <div class="pt-4">
-          <div>{{ this.current.title }} - {{ this.current.artist }}</div>
+          <div>{{ this.current.artist }} - {{ this.current.title }}</div>
           <div class="gap-2 song-duration flex">
             <div ref="currTime" class="current-time"></div>
             <div class="mt-2.5">
@@ -170,46 +178,48 @@
         </div>
       </div>
 
-      <div class="pl-10 pb-1 pt-1 ml-32">
-        <font-awesome-icon
-          class="random-song cursor-pointer h-20 w-8 text-white duration-200"
-          :class="randomActive"
-          icon="fa-solid fa-shuffle"
-          @click="randomSong()"
-        />
-      </div>
-      <div class="pl-16 pb-1 pt-1">
-        <ChevronLeftIcon
-          class="prev-song cursor-pointer h-20 w-10 text-white text-5xl"
-          @click="prevSong"
-        />
-      </div>
-      <div class="pl-16 pb-1 pt-1">
-        <PlayIcon
-          v-if="!isPlaying"
-          class="play-song cursor-pointer h-20 w-10 text-white"
-          @click="play"
-        />
-        <PauseIcon
-          v-else
-          @click="pause"
-          class="pause-song cursor-pointer h-20 w-10 text-white duration-200"
-        />
-      </div>
-      <div class="pl-16 pb-1 pt-1">
-        <ChevronRightIcon
-          class="next-song cursor-pointer h-20 w-10 text-white duration-200"
-          @click="nextSong"
-        />
-      </div>
+      <div class="play-controls">
+        <div class="randsong_div pl-10 pb-1 pt-1 ml-32">
+          <font-awesome-icon
+            class="random-song cursor-pointer h-20 w-8 text-white duration-200"
+            :class="randomActive"
+            icon="fa-solid fa-shuffle"
+            @click="randomSong()"
+          />
+        </div>
+        <div class="pl-16 pb-1 pt-1">
+          <ChevronLeftIcon
+            class="prev-song cursor-pointer h-20 w-10 text-white text-5xl"
+            @click="prevSong"
+          />
+        </div>
+        <div class="pl-16 pb-1 pt-1">
+          <PlayIcon
+            v-if="!isPlaying"
+            class="play-song cursor-pointer h-20 w-10 text-white"
+            @click="play"
+          />
+          <PauseIcon
+            v-else
+            @click="pause"
+            class="pause-song cursor-pointer h-20 w-10 text-white duration-200"
+          />
+        </div>
+        <div class="pl-16 pb-1 pt-1">
+          <ChevronRightIcon
+            class="next-song cursor-pointer h-20 w-10 text-white duration-200"
+            @click="nextSong"
+          />
+        </div>
 
-      <div class="pl-16 pb-1 pt-1 mr-32">
-        <font-awesome-icon
-          icon="fa-solid fa-repeat"
-          class="repeat-song cursor-pointer h-20 w-8 text-white duration-200"
-          :class="repeatActive"
-          @click="repeatSong()"
-        />
+        <div class="pl-16 pb-1 pt-1 mr-32">
+          <font-awesome-icon
+            icon="fa-solid fa-repeat"
+            class="repeat-song cursor-pointer h-20 w-8 text-white duration-200"
+            :class="repeatActive"
+            @click="repeatSong()"
+          />
+        </div>
       </div>
 
       <div class="gap-2 pl-32 volume-control">
@@ -295,6 +305,7 @@ export default {
       // Set up the audio
       player: new Audio(),
       loop: false,
+      activeSong: null,
     };
   },
   methods: {
@@ -316,6 +327,10 @@ export default {
     pauseRandom() {
       this.isRandom = false;
       this.randomActive = null;
+    },
+
+    selectSong(index) {
+      this.activeSong = index;
     },
 
     play(song) {
@@ -345,6 +360,7 @@ export default {
           }
           this.current = this.songs[this.index];
           this.play(this.current);
+          this.selectSong(this.index);
         }.bind(this)
       );
       this.spinImage = "rotate";
@@ -370,6 +386,7 @@ export default {
       }
       this.current = this.songs[this.index];
       this.play(this.current);
+      this.selectSong(this.index);
     },
     prevSong() {
       this.index--;
@@ -380,22 +397,22 @@ export default {
       this.play(this.current);
     },
     repeatSong() {
-      this.isRepeatSong ? this.pauseRepeat() : this.playRepeat() ;
+      this.isRepeatSong ? this.pauseRepeat() : this.playRepeat();
     },
 
     playRepeat() {
       this.loop = true;
-      if(this.loop === true) {
+      if (this.loop === true) {
         this.isRepeatSong = true;
-      this.repeatActive = "repeat-active";
-      this.player.loop = this.loop;
+        this.repeatActive = "repeat-active";
+        this.player.loop = this.loop;
       }
     },
 
     pauseRepeat() {
       this.isRepeatSong = false;
       this.repeatActive = null;
-      this.loop = false;
+      this.player.loop = false;
     },
 
     muteSong() {
@@ -555,7 +572,83 @@ export default {
         songSrc: "https://samplesongs.netlify.app/Solo.mp3",
         id: 12,
       },
-      
+      {
+        title: "Rich Flex",
+        artist: "Drake ft 21 Savage",
+        src: require("../assets/images/drake-rich-flex.jpg"),
+        songSrc: require("../assets/music/Drake, 21 Savage - Rich Flex (Audio).mp3"),
+        id: 13,
+      },
+      {
+        title: "Lil Bebe",
+        artist: "Danileigh",
+        src: require("../assets/images/danileigh.jpg"),
+        songSrc: require("../assets/music/DaniLeigh-Lil-Bebe_qOQEcbL6NR4.mp3"),
+        id: 14,
+      },
+      {
+        title: "Lemonade (Remix)",
+        artist: "Internet Money ft. Don Toliver & Roddy Ricch",
+        src: require("../assets/images/lemonade.jpg"),
+        songSrc: require("../assets/music/Internet Money – Lemonade (Remix) ft. Don Toliver & Roddy Ricch (Official).mp3"),
+        id: 15,
+      },
+      {
+        title: "TO THE MOON",
+        artist: "JNR CHOI ft Sam Tompkins",
+        src: require("../assets/images/moon.jpg"),
+        songSrc: require("../assets/music/JNR CHOI, Sam Tompkins - TO THE MOON (Official Music Video).mp3"),
+        id: 16,
+      },
+      {
+        title: "In A Minute",
+        artist: "Lil Baby",
+        src: require("../assets/images/lil-baby.jpg"),
+        songSrc: require("../assets/music/Lil Baby - In A Minute (Official Video).mp3"),
+        id: 17,
+      },
+      {
+        title: "DIOR",
+        artist: "POP SMOKE",
+        src: require("../assets/images/pop-smoke.jpg"),
+        songSrc: require("../assets/music/POP SMOKE - DIOR (Official).mp3"),
+        id: 18,
+      },
+      {
+        title: "Solo",
+        artist: "Kid LAROI ft Polo G",
+        src: require("../assets/images/kid-laroi-not-sober.jpg"),
+        songSrc: require("../assets/music/The Kid LAROI - NOT SOBER ft. Polo G & Stunna Gambino.mp3"),
+        id: 19,
+      },
+      {
+        title: "No Promises",
+        artist: "TheHxliday",
+        src: require("../assets/images/hxliday-promises.jpg"),
+        songSrc: require("../assets/music/TheHxliday - No Promises.mp3"),
+        id: 20,
+      },
+      {
+        title: "Drip Too Hard",
+        artist: "Lil Baby ft Gunna",
+        src: require("../assets/images/lil-baby.webp"),
+        songSrc: require("../assets/music/Lil Baby x Gunna - Drip Too Hard (Official Audio).mp3"),
+        id: 21,
+      },
+      {
+        title: "I Know",
+        artist: "Polo G",
+        src: require("../assets/images/polo-g.jpg"),
+        songSrc: require("../assets/music/Polo-G-I-Know.mp3"),
+        id: 22,
+      },
+      {
+        title: "Easy (Remix)",
+        artist: "DaniLeigh ft Chris Brown",
+        src: require("../assets/images/cb-easy.jpg"),
+        songSrc: require("../assets/music/DaniLeigh - Easy ft. Chris Brown (Remix Official Audio).mp3"),
+        id: 23,
+      },
     ];
     this.current = this.songs[this.index];
     this.player.src = this.current.songSrc;
@@ -588,6 +681,14 @@ export default {
   background-attachment: scroll;
   height: 100vh;
   overflow-y: scroll;
+}
+
+.search-bar {
+  background: rgba(45, 35, 35, 0.4);
+  border-bottom: 2px solid rgba(100, 116, 139, 0.3);
+}
+.search-bar:focus-within {
+  background: rgba(45, 35, 35, 0.855);
 }
 
 #not-current_detail {
@@ -630,6 +731,11 @@ img {
 .playlist {
   width: 100%;
   color: white;
+}
+
+.playactive {
+  border-top: 1px solid rgba(100, 116, 139, 0.3);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
 }
 
 .playbar {
@@ -725,6 +831,10 @@ img {
   }
 }
 
+.play-controls {
+  display: flex;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -788,7 +898,7 @@ img {
     display: none;
   }
   .nav {
-    display: flex;
+    display: none;
     width: auto;
     margin-left: 0;
     column-gap: 2rem;
@@ -804,6 +914,31 @@ img {
     padding-bottom: 10px;
     position: fixed;
     bottom: 0%;
+    display: block;
+  }
+  .volume-control {
+    display: none;
+  }
+  .song-details {
+    border: none;
+  }
+  .seek-slider {
+    width: 165px;
+  }
+  .play-controls {
+    display: flex;
+    margin-left: 6px;
+  }
+  .randsong_div {
+    margin-left: 6px;
+  }
+  .search-bar {
+    margin-left: 8rem;
+    background: rgba(45, 35, 35, 0.4);
+    border-bottom: 2px solid rgba(100, 116, 139, 0.3);
+  }
+  .search-bar:focus-within {
+    background: rgba(45, 35, 35, 0.855);
   }
 }
 </style>
