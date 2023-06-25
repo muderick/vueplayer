@@ -14,13 +14,13 @@
         <h5 class="text-white text-3xl mb-5">Basically for testing</h5>
         <br />
         <div class="profile-section">
-          <a class="profile profile-left" href="https://muderick.github.io">
+          <a class="profile profile-left" href="https://muderick.github.io" target="_blank" rel="noopener noreferrer">
             <UserCircleIcon class="user-icon m-auto h-10 w-5" />
             <h3>View Personal Website</h3>
           </a>
           <div class="divider">
           </div>
-          <a class="profile" href="https://www.linkedin.com/in/mumia-derick/">
+          <a class="profile" href="https://www.linkedin.com/in/mumia-derick/" target="_blank" rel="noopener noreferrer">
             <LinkIcon class="link-icon m-auto h-10 w-5" />
             <h3>View LinkedIn Profile</h3>
           </a>
