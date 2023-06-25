@@ -1,4 +1,4 @@
-# music_app
+![vue-player](https://github.com/muderick/vuemusic.github.io/assets/94361704/2f45cc9c-b555-4243-8c34-aa5af4786cb8)# music_app
 
 ## Project setup
 ```
@@ -23,6 +23,6 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-![vue-music-app](https://user-images.githubusercontent.com/94361704/214261736-41ae36bc-1794-4f05-ae1c-36416d99e775.png)
+![vue-player](https://github.com/muderick/vuemusic.github.io/assets/94361704/54d3f241-b561-4b28-8212-13fbea88f02f)
 
-### *Under development
+### *Demo project complete
