@@ -1,20 +1,22 @@
 <template>
   <div class="musicnoteicon-div p-2 py-5 pl-8 text-white sm_m-auto">
-    <router-link to="/">
+    <router-view to="/">
       <MusicNoteIcon
         class="musicnote-icon h-10 w-5 text-white"
         :class="active"
         @click="toggleActive"
       />Playlist
-    </router-link>
+    </router-view>
   </div>
   <div class="about-div p-2 pl-8 text-white sm_m-auto">
-    <router-link to="/about">
-      <InformationCircleIcon
-        v-show="!isHidden"
-        class="informationcircle-icon h-10 w-5 text-white"
-      />About
-    </router-link>
+    <keep-alive>
+      <router-link to="/about">
+        <InformationCircleIcon
+          v-show="!isHidden"
+          class="informationcircle-icon h-10 w-5 text-white"
+        />About
+      </router-link>
+    </keep-alive>
   </div>
 </template>
 

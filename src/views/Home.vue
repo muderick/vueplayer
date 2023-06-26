@@ -32,7 +32,9 @@
       class="content h-content flex lg:gap-10 md:gap-5 pt-4"
     >
       <div class="nav mt-12 gap-2 bg-transparent w-28 flex-row rounded-r">
-        <Navbar />
+        <keep-alive>
+          <Navbar />
+        </keep-alive>
       </div>
       <!-- SHOW THE CURRENT MUSIC PLAYING AND IMAGE -->
       <div
@@ -289,7 +291,7 @@ export default {
       waveClass: null,
       current: {},
       index: 0,
-      isPlaying: false,
+      isPlaying: null,
       isCurrent: false,
       isRandom: false,
       isMuted: false,
@@ -483,7 +485,6 @@ export default {
     updateTimer = setInterval(this.setUpdate, 1000);
 
     this.player.addEventListener("ended", this.nextSong);
-    //this.reload();
   },
 
   created() {
