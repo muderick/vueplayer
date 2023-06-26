@@ -23,6 +23,5 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-![vue-player](https://github.com/muderick/vuemusic.github.io/assets/94361704/54d3f241-b561-4b28-8212-13fbea88f02f)
 
-### *Demo project complete
+### [Demo](https://muderick.github.io/vueplayer/) project complete
