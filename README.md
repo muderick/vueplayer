@@ -24,4 +24,4 @@ npm run lint
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
-### [Demo](https://muderick.github.io/vueplayer/) project complete
+### <a href="https://muderick.github.io/vueplayer/" target="_blank" rel="noopener">Demo</a> project complete
