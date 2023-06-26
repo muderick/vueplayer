@@ -616,7 +616,7 @@ export default {
         id: 18,
       },
       {
-        title: "Solo",
+        title: "Not Sober",
         artist: "Kid LAROI ft Polo G",
         src: require("../assets/images/kid-laroi-not-sober.jpg"),
         songSrc: require("../assets/music/The Kid LAROI - NOT SOBER ft. Polo G & Stunna Gambino.mp3"),
