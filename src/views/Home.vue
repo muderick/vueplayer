@@ -57,6 +57,7 @@
       </div>
       <!-- Show playlist display only when the current song is playing -->
       <div
+        ref="songList"
         v-show="isCurrent"
         class="overflow-auto bg-transparent border-2 rounded-2xl border-gray-600 my-auto w-full h-full is_current pl-8"
       >
@@ -70,10 +71,10 @@
           <div
             @click="
               play(song);
-              selectSong(index);
+              selectSong(song);
             "
             class="py-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
-            :class="{ playactive: index === activeSong }"
+            :class="{ playactive: activeSong === song }"
           >
             <div class="w-80 cursor-pointer">
               <span>
@@ -106,6 +107,7 @@
         </div>
       </div>
       <div
+        ref="songList"
         v-show="!isCurrent"
         class="not_current w-full overflow-auto h-full border-2 border-gray-600 rounded-2xl bg-transparent my-auto pl-8"
       >
@@ -118,10 +120,10 @@
           <div
             @click="
               play(song);
-              selectSong(index);
+              selectSong(song);
             "
             class="py-2 flex flex-column-3 h-3/4 md:grid-cols-2 sm:grid-cols-1 sm:gap-2 sm:h-1/2 gap-2 p-2"
-            :class="{ playactive: index === activeSong }"
+            :class="{ playactive: activeSong === song }"
           >
             <div class="w-80 cursor-pointer">
               <span>
@@ -331,8 +333,9 @@ export default {
       this.randomActive = null;
     },
 
-    selectSong(index) {
-      this.activeSong = index;
+    selectSong(song) {
+      this.activeSong = song;
+      this.scrollSongList();
     },
 
     play(song) {
@@ -362,7 +365,7 @@ export default {
           }
           this.current = this.songs[this.index];
           this.play(this.current);
-          this.selectSong(this.index);
+          this.selectSong(this.current);
         }.bind(this)
       );
       this.spinImage = "rotate";
@@ -388,15 +391,17 @@ export default {
       }
       this.current = this.songs[this.index];
       this.play(this.current);
-      this.selectSong(this.index);
+      this.selectSong(this.current);
     },
     prevSong() {
-      this.index--;
+      this.index = this.current.id - 2;
       if (this.index < 0) {
         this.index = this.songs.length - 1;
       }
       this.current = this.songs[this.index];
       this.play(this.current);
+
+      this.selectSong(this.current);
     },
     repeatSong() {
       this.isRepeatSong ? this.pauseRepeat() : this.playRepeat();
@@ -485,6 +490,23 @@ export default {
     updateTimer = setInterval(this.setUpdate, 1000);
 
     this.player.addEventListener("ended", this.nextSong);
+  },
+  watch: {
+    scrollSongList() {
+      this.$nextTick(() => {
+        const songListDiv = this.$refs.songList;
+        if (songListDiv && this.activeSong) {
+          const selectedSongElement = songListDiv.querySelector(".playactive");
+          if (selectedSongElement) {
+            // Scroll to the selected song in the song list
+            selectedSongElement.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }
+        }
+      });
+    },
   },
 
   created() {
@@ -708,7 +730,7 @@ export default {
   height: 70vh;
   width: 50%;
   transition: var(--transition);
-  overflow: scroll;
+  overflow-y: auto;
 }
 
 .not_current:hover {
